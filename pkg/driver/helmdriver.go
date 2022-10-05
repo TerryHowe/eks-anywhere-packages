@@ -54,6 +54,9 @@ func (d *helmDriver) Initialize(ctx context.Context, clusterName string, namespa
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig for helm driver: %w", err)
 	}
+	if len(namespace) < 1 {
+		namespace = "default"
+	}
 
 	restClientGetter, err := NewRESTClientGetter(kubeconfig, namespace)
 	if err != nil {
