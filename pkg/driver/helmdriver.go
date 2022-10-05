@@ -43,22 +43,26 @@ func NewHelm(log logr.Logger, secretAuth auth.Authenticator, tcc auth.TargetClus
 	}, nil
 }
 
-func (d *helmDriver) Initialize(ctx context.Context, clusterName string) (err error) {
+func (d *helmDriver) Initialize(ctx context.Context, clusterName string, namespace string) (err error) {
 	authorizationFileName := d.secretAuth.AuthFilename()
 	client, err := registry.NewClient(registry.ClientOptCredentialsFile(authorizationFileName))
 	if err != nil {
 		return fmt.Errorf("creating registry client for helm driver: %w", err)
 	}
 
-	kubeconfigPath, err := d.tcc.GetKubeconfigFile(ctx, clusterName)
+	kubeconfig, err := d.tcc.GetKubeconfigString(ctx, clusterName)
 	if err != nil {
 		return fmt.Errorf("getting kubeconfig for helm driver: %w", err)
 	}
 
+	restClientGetter, err := NewRESTClientGetter(kubeconfig, namespace)
+	if err != nil {
+		return fmt.Errorf("getting rest client getter for helm driver: %w", err)
+	}
+
 	d.settings = cli.New()
 	d.cfg = &action.Configuration{RegistryClient: client}
-	d.settings.KubeConfig = kubeconfigPath
-	err = d.cfg.Init(d.settings.RESTClientGetter(), d.settings.Namespace(), os.Getenv("HELM_DRIVER"), helmLog(d.log))
+	err = d.cfg.Init(restClientGetter, d.settings.Namespace(), os.Getenv("HELM_DRIVER"), helmLog(d.log))
 	if err != nil {
 		return fmt.Errorf("initializing helm driver: %w", err)
 	}
