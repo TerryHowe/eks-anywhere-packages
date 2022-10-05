@@ -62,7 +62,7 @@ func (d *helmDriver) Initialize(ctx context.Context, clusterName string, namespa
 
 	d.settings = cli.New()
 	d.cfg = &action.Configuration{RegistryClient: client}
-	err = d.cfg.Init(restClientGetter, d.settings.Namespace(), os.Getenv("HELM_DRIVER"), helmLog(d.log))
+	err = d.cfg.Init(restClientGetter, namespace, os.Getenv("HELM_DRIVER"), helmLog(d.log))
 	if err != nil {
 		return fmt.Errorf("initializing helm driver: %w", err)
 	}
