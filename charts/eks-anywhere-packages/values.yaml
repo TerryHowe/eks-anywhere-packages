@@ -107,6 +107,7 @@ cronjob:
   # -- ECR refresher tag, or SHA256 checksum.
   tag: "{{ecr-token-refresher}}"
   digest: "{{ecr-token-refresher-digest}}"
+  suspend: false
 #  Additional Variables for Config Map for namespace
 nsconfigmap:
   name: ns-secret-map
