@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"fmt"
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/cli/cli/config/configfile"
 	"github.com/docker/cli/cli/config/credentials"
@@ -27,11 +28,13 @@ func (cs *CredentialStore) SetDirectory(directory string) {
 
 // Init initialize a credential store.
 func (cs *CredentialStore) Init() (err error) {
+	fmt.Println(cs.directory)
 	cs.configFile, err = config.Load(cs.directory)
 	if err != nil {
 		return err
 	}
 	if !cs.configFile.ContainsAuth() {
+		fmt.Println("FOUND CREDENTIALS")
 		cs.configFile.CredentialsStore = credentials.DetectDefaultStore(cs.configFile.CredentialsStore)
 	}
 	return nil
@@ -39,6 +42,7 @@ func (cs *CredentialStore) Init() (err error) {
 
 // Credential get an authentication credential for a given registry.
 func (cs *CredentialStore) Credential(registry string) (auth.Credential, error) {
+	fmt.Println("CRED: " + registry)
 	authConf, err := cs.configFile.GetCredentialsStore(registry).Get(registry)
 	if err != nil {
 		return auth.EmptyCredential, err

@@ -41,11 +41,17 @@ func (p *RegistryPuller) Pull(ctx context.Context, ref string) ([]byte, error) {
 	}
 
 	credentialStore := registry.NewCredentialStore()
+	p.log.Info("Setting directory", "dir", configPath)
 	credentialStore.SetDirectory(configPath)
 	err = credentialStore.Init()
 	if err != nil {
+		p.log.Error(err, "credential init failed")
 		return nil, err
 	}
+	three, err := credentialStore.Credential("harbor.eksa.demo:30003")
+	p.log.Info("init success", "three", three)
+	nada, err := credentialStore.Credential("harbor.eksa.demo")
+	p.log.Info("init success", "nada", nada)
 
 	sc := registry.NewStorageContext(art.Registry, credentialStore, certificates, false)
 	p.storageClient = registry.NewOCIRegistry(sc)
